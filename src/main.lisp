@@ -52,6 +52,18 @@
          (l (length str)))
     (mapcan #'list ks (loop for k in ks collect (float (/ (mycount str (symbol-char k)) l))))))
 
-(defun rot (str shift) nil)
+;; TODO: To utils
+(defun circular (input)
+  "Make a circular list from INPUT"
+  (setf (cdr (last input)) input) input)
 
-(defun rot-brute-force (str) nil)
+(defun cesar (str &optional (shift 13))
+  "Cesar's shift cipher of STR by SHIFT desplacements. case insensitive"
+  (let* ((alph (loop for c across "abcdefghijklmnopqrstuvwxyz" collect c))
+         (cipher (append alph alph))
+         (ishift (if (< shift 0) (+ shift 26) shift))
+         (crot (lambda (c) (let ((p (position c alph)))
+                        (if p
+                            (nth (+ p ishift) cipher)
+                            c)))))
+    (format nil "~{~a~}" (loop for c across (string-downcase str) collect (funcall crot c)))))
