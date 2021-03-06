@@ -5,14 +5,57 @@ exec ros -Q -- $0 "$@"
 |#
 (progn ;;init forms
   (ros:ensure-asdf)
-  #+quicklisp(ql:quickload '() :silent t)
-  )
+  (asdf:load-system :unix-opts))
 
-(defpackage :ros.script.cl-ciph.3823511435
+(defpackage :ros/script/cl-ciph
   (:use :cl))
-(in-package :ros.script.cl-ciph.3823511435)
+(in-package :ros/script/cl-ciph)
+
+
+(defun unknown-option (condition)
+  (format t "warning: ~s option is unknown!~%" (opts:option condition))
+  (invoke-restart 'opts:skip-option))
+
+(defmacro when-option ((options opt) &body body)
+  `(let ((it (getf ,options ,opt)))
+    (when it
+      ,@body)))
+
+(opts:define-opts
+    (:name :help
+    :description "This help"
+    :short #\h
+    :long "help")
+    (:name :input
+    :description "Path to file whose contents will be processed as input (e.g ciphertext)"
+    :short #\i
+      :long "input"
+      :arg-parser #'identity
+      :meta-var "FILE"))
 
 (defun main (&rest argv)
   (declare (ignorable argv))
-  (format t "Inside main~%"))
-;;; vim: set ft=lisp lisp:
+
+  (multiple-value-bind (options free-args)
+      (handler-case
+          (handler-bind ((opts:unknown-option #'unknown-option))
+            (opts:get-opts argv))
+            (opts:missing-arg (condition)
+                              (format t "fatal: option ~s requires argument~%"
+                                      (opts:option condition)))
+            (opts:arg-parser-failed (condition)
+                              (format t "fatal: Parser failer: ~s/~s~%"
+                                      (opts:raw-arg condition)
+                                      (opts:option condition)))
+            (opts:missing-required-option (con)
+                                          (format t "fatal: required option ~s~%" con)
+                                          (opts:exit 1)))
+            (when-option (options :help)
+                        (opts:describe
+                          :usage-of "cl-ciph"
+                          :args     "[FREE-ARGS]"))
+            (when-option (options :input)
+                        (format t "Loading file ~s~%" (getf options :input)))
+            (if free-args (format t "Unused arguments ~s~%" free-args)))
+
+  )

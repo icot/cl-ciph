@@ -1,8 +1,8 @@
 (defsystem "cl-ciph"
-  :version "0.1.0"
+  :version "0.1.1"
   :author "icot"
   :license "GPLv3"
-  :depends-on ()
+  :depends-on ("unix-opts")
   :components ((:module "src"
                 :components
                 ((:file "main"))))
