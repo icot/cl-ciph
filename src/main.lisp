@@ -55,8 +55,8 @@
   "Make a circular list from INPUT"
   (setf (cdr (last input)) input) input)
 
-(defun cesar (str &optional (shift 13))
-  "Cesar's shift cipher of STR by SHIFT desplacements. case insensitive"
+(defun shift (str &optional (shift 13))
+  "Shift (Caesar's ) cipher of STR by SHIFT desplacements. case insensitive"
   (let* ((alph (loop for c across "abcdefghijklmnopqrstuvwxyz" collect c))
          (cipher (append alph alph))
          (ishift (if (< shift 0) (+ shift 26) shift))
