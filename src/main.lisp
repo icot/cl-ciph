@@ -48,7 +48,17 @@
   (let* ((keywords (str->keyword-list str))
          (ks (make-keys keywords))
          (l (length str)))
-    (mapcan #'list ks (loop for k in ks collect (float (/ (mycount str (symbol-char k)) l))))))
+    (mapcan #'list ks (loop for k in ks collect (/ (mycount str (symbol-char k)) l)))))
+
+;; TODO: Alphabet management
+(defun ic (str)
+  "Returns a PLIST containing the frequency distribution on STR"
+  (let* ((keywords (str->keyword-list str))
+         (ks (make-keys keywords))
+         (l (length str))
+         (c 26) ; English alphabet
+         (denominator (* l (- l 1))))
+    (/ (* c (apply #'+ (loop for k in ks collect (mycount str (symbol-char k))))) denominator)))
 
 ;; TODO: To utils
 (defun circular (input)
@@ -60,10 +70,10 @@
   (let* ((alph (loop for c across "abcdefghijklmnopqrstuvwxyz" collect c))
          (cipher (append alph alph))
          (ishift (if (< shift 0) (+ shift 26) shift))
-         (crot (lambda (c) (let ((p (position c alph)))
+         (crot (lambda (c) (let ((p (position c alph))))
                         (if p
                             (nth (+ p ishift) cipher)
-                            c)))))
+                            c))))
     (format nil "~{~a~}" (loop for c across (string-downcase str) collect (funcall crot c)))))
 
 (defun shift-brute-force (str)
@@ -72,6 +82,14 @@
       (shift-brute-force (subseq str 0 31))
       (loop for s from 1 below 27 by 1 collect (cons s (shift str s)))))
 
+;; TODO: add options
+(defun sanitize-string (str)
+  "Sanitize (remove non-letters) string"
+  (remove-if (lambda (c) (str::digitp (string c)))
+             (remove #\space
+                     (str::upcase
+                      (str::remove-punctuation
+                       (str::collapse-whitespaces str))))))
 
 ;; TODO
 (defun pattern-candidates (pattern)
@@ -83,9 +101,6 @@
   "Substitution cipher solving REPL"
   nil)
 
-;; TODO
-(defun index-of-coincidence (str)
-  nil)
 
 ;; TODO
 (defun digraphs (str) nil)
