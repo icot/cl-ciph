@@ -4,9 +4,7 @@
 
 (defun read-file (filename)
   "Returns FILENAME contents (text) as a string"
-  (with-open-file (in filename)
-    (with-standard-io-syntax
-      (read in))))
+  (uiop:read-file-string filename))
 
 (defun str->keyword-list (s)
   "Returns S a list of uppercase sensitive keywords"
@@ -24,7 +22,7 @@
 ;; using mapcar we can generate an alist instead of a plist
 
 (defmacro mpget (mapping k)
-  "Returns MAPPING value for key K expresses as string"
+  "Returns MAPPING value for key K expressed as string"
   `(getf ,mapping (intern (string ,k) :keyword)))
 
 (defmacro update-mapping (mapping key new-value)
@@ -82,3 +80,6 @@
 ;; TODO
 (defun index-of-coincidence (str)
   nil)
+
+;; TODO
+(defun digraphs (str) nil)
