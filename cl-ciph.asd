@@ -19,3 +19,11 @@
                 ((:file "main"))))
   :description "Test system for cl-ciph"
   :perform (test-op (op c) (symbol-call :rove :run c)))
+
+;(asdf:defsystem :system-name
+  ;...
+  ;:build-operation "asdf:program-op"
+  ;:build-pathname "my-exe-name-relative-to-the-source-directory"
+  ;:entry-point "my-package:my-launch-function")
+
+;(sb-ext:save-lisp-and-die "myprog" :toplevel #'main :executable t :compression 9)

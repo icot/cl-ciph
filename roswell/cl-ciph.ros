@@ -58,4 +58,3 @@ exec ros -Q -- $0 "$@"
                         (format t "Loading file ~s~%" (getf options :input)))
             (if free-args (format t "Unused arguments ~s~%" free-args)))
 
-  )

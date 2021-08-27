@@ -1,5 +1,7 @@
 (defpackage cl-ciph
-  (:use :cl))
+  (:use :cl)
+;  (:import-from )
+  (:export :main))
 (in-package :cl-ciph)
 
 (defun read-file (filename)
@@ -104,3 +106,54 @@
 
 ;; TODO
 (defun digraphs (str) nil)
+
+;; Execution. Arg parsing + entry point
+;; TODO Separate package?
+
+(require 'unix-opts)
+
+(defun unknown-option (condition)
+  (format t "warning: ~s option is unknown!~%" (opts:option condition))
+  (invoke-restart 'opts:skip-option))
+
+(defmacro when-option ((options opt) &body body)
+  `(let ((it (getf ,options ,opt)))
+    (when it
+      ,@body)))
+
+(opts:define-opts
+    (:name :help
+    :description "This help"
+    :short #\h
+    :long "help")
+    (:name :input
+    :description "Path to file whose contents will be processed as input (e.g ciphertext)"
+    :short #\i
+      :long "input"
+      :arg-parser #'identity
+      :meta-var "FILE"))
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+
+  (multiple-value-bind (options free-args)
+      (handler-case
+          (handler-bind ((opts:unknown-option #'unknown-option))
+            (opts:get-opts argv))
+            (opts:missing-arg (condition)
+                              (format t "fatal: option ~s requires argument~%"
+                                      (opts:option condition)))
+            (opts:arg-parser-failed (condition)
+                              (format t "fatal: Parser failer: ~s/~s~%"
+                                      (opts:raw-arg condition)
+                                      (opts:option condition)))
+            (opts:missing-required-option (con)
+                                          (format t "fatal: required option ~s~%" con)
+                                          (opts:exit 1)))
+            (when-option (options :help)
+                        (opts:describe
+                          :usage-of "cl-ciph"
+                          :args     "[FREE-ARGS]"))
+            (when-option (options :input)
+                        (format t "Loading file ~s~%" (getf options :input)))
+            (if free-args (format t "Unused arguments ~s~%" free-args)))
