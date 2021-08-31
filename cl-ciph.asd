@@ -2,7 +2,7 @@
   :version "0.1.1"
   :author "icot"
   :license "GPLv3"
-  :depends-on ("unix-opts")
+  :depends-on ("str" "uiop" "unix-opts")
   :components ((:module "src"
                 :components
                 ((:file "main"))))
